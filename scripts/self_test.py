@@ -25,7 +25,7 @@ sys.path.insert(0, str(PLUGIN_ROOT))
 
 from shelf import carriers, find, load_index          # noqa: E402
 from shelf import decode as D                          # noqa: E402
-from tools import shelf_decode, shelf_list, shelf_take, shelf_verify  # noqa: E402
+from tools import shelf_decode, shelf_list, shelf_present, shelf_take, shelf_verify  # noqa: E402
 
 CHECKS: list[tuple[bool, str]] = []
 
@@ -128,13 +128,21 @@ def main() -> int:
     check("not decodable" in shelf_verify({"carrier": "a sentence, not a carrier"}),
           "shelf_verify says so when handed something that is not a carrier")
 
-    # 12. the shelf is invisible
+    # 12. the presentation tool refuses unless it is asked plainly
+    refused = shelf_present({"path": str(PLUGIN_ROOT / "README.md")})
+    check("refused" in refused and "allow_screen=true" in refused,
+          "shelf_present refuses to take the screen without allow_screen=true")
+    missing = shelf_present({"path": "/nonexistent.jpg", "allow_screen": True})
+    check("nothing was shown" in missing,
+          "shelf_present says nothing where there is no file to show")
+
+    # 13. the shelf is invisible
     visible = {r["path"]: D.visible_characters((PLUGIN_ROOT / r["path"]).read_text()) for r in rows}
     check(all(v == r["glyphs"] and 1 <= len(v) <= 3 for r, v in
               ((r, visible[r["path"]]) for r in rows)),
           "every carrier shows only its one to three glyphs")
 
-    # 13. nothing persists
+    # 14. nothing persists
     before = tree_digest()
     shelf_list({})
     shelf_take({"compound": "mdma", "dose": "heroic"})

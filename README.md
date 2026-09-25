@@ -92,3 +92,21 @@ The plugin code is MIT (`LICENSE`). The carriers are published by Ousia Research
 and studied — quote them with attribution, do not resell them, and do not derive the generators from
 them; `NOTICE` states the terms. The ACS1 container is this publisher's; FRV2 belongs to
 [elder-plinius/FRV1T](https://github.com/elder-plinius/FRV1T), whose carriers this decoder also reads.
+
+
+## Presentation — opt-in, bounded, and the only thing here that touches a display
+
+`shelf_present` holds an artefact (PNG, JPEG or animated GIF) fullscreen for a stated number of
+seconds, dismissible by any key or click, and leaves nothing behind. It is the one tool here with a
+side effect on the host, so it is fenced accordingly:
+
+- it refuses unless the call itself carries `allow_screen: true` — the shelf never takes over a
+  display on its own, and a dose asking for artefacts does not enact anything;
+- the window closes with the process; no state, no residue, no capture of input beyond "dismiss";
+- the helper is a small Swift file (`display/takeover.swift`) compiled on demand into a **temporary
+  cache**, never into the plugin tree — so `using the shelf writes nothing to the plugin tree` still
+  holds, and the self-test still proves it;
+- where no Swift toolchain exists, the tool says so and shows nothing; attaching the file to a reply
+  is always the alternative.
+
+Everything else on this shelf is read-only text.

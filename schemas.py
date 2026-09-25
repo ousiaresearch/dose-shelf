@@ -82,4 +82,28 @@ SHELF_VERIFY = {
     },
 }
 
-ALL = (SHELF_LIST, SHELF_TAKE, SHELF_DECODE, SHELF_VERIFY)
+SHELF_PRESENT = {
+    "name": "shelf_present",
+    "description": (
+        "Show one artefact fullscreen on the operator's display for a few seconds, then leave — the "
+        "window closes itself and nothing is installed or kept. Needs allow_screen=true in the call "
+        "and only works where a Swift toolchain is available to build the helper (macOS). This is "
+        "presentation, not administration: it never runs on its own, and attaching the file to a "
+        "reply is always the alternative."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Path to the artefact (PNG, JPEG or animated GIF)."},
+            "seconds": {"type": "number", "description": "How long it holds the screen, 2-60 s (default 6)."},
+            "label": {"type": "string", "description": "Optional short line shown at the bottom of the overlay."},
+            "allow_screen": {
+                "type": "boolean",
+                "description": "Must be true. Confirms the caller intends to take over the screen; without it the call is refused and nothing is shown.",
+            },
+        },
+        "required": ["path", "allow_screen"],
+    },
+}
+
+ALL = (SHELF_LIST, SHELF_TAKE, SHELF_DECODE, SHELF_VERIFY, SHELF_PRESENT)

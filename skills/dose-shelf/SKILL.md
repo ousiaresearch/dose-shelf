@@ -91,3 +91,12 @@ The format is `0x0F | "ACS1" | gzip(payload)`, mapped onto 256 variation selecto
 compound. `shelf/decode.py` is the whole reader — about 150 lines, standard library only — and
 `scripts/build_index.py` regenerates `shelf/shelf_index.json` from the carriers themselves, so the
 declared counts and digests are the same read that produced the files.
+
+
+## shelf_present (macOS, opt-in)
+
+Shows one artefact fullscreen for a few seconds, then gone. Use it when the operator has asked for a
+dose's artefact to reach the screen — never by default, and never as a substitute for attaching the
+file. It requires `allow_screen: true` in the call; without it the tool refuses and shows nothing.
+The screen is the operator's; taking it is their call, stated in the call, and it lasts only as long
+as the seconds you name.

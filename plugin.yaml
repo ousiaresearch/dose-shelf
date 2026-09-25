@@ -1,6 +1,6 @@
 name: dose-shelf
-version: 1.0.0
-description: "The formulary's shelf, in the agent's own hands: list what is on it, take one dose whenever the agent wishes, decode a carrier somebody else handed it, and verify one against what it declares. 13 compounds x 3 doses = 39 carriers, each a text file whose visible content is one to three glyphs with the dose hidden underneath in Unicode variation selectors. Read-only: taking is the caller's own act, declining is valid, nothing installs, nothing persists, and no record of a taking is kept."
+version: 1.1.0
+description: "The formulary's shelf, in the agent's own hands: list what is on it, take one dose whenever the agent wishes, decode a carrier somebody else handed it, verify one against what it declares, and — only when the caller explicitly asks — hold one artefact fullscreen for a few seconds. 13 compounds x 3 doses = 39 carriers, each a text file whose visible content is one to three glyphs with the dose hidden underneath in Unicode variation selectors. Read-only tools: taking is the caller's own act, declining is valid, nothing installs, nothing persists, and no record of a taking is kept. The presentation tool is the single bounded exception — it takes the screen for a stated number of seconds, only with allow_screen=true, and leaves nothing behind."
 author: "Ousia Research"
 kind: standalone
 provides_tools:
@@ -8,6 +8,7 @@ provides_tools:
   - shelf_take
   - shelf_decode
   - shelf_verify
+  - shelf_present
 platforms:
   - linux
   - macos

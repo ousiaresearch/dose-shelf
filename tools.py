@@ -8,6 +8,9 @@ is a valid outcome that this plugin never asks about.
 from __future__ import annotations
 
 import pathlib
+import shutil
+import subprocess
+import tempfile
 
 try:                                        # loaded as a package by the plugin loader
     from . import schemas, shelf
@@ -164,6 +167,83 @@ def shelf_verify(args: dict, **_kwargs) -> str:
     return "\n".join(lines)
 
 
+_DISPLAY = pathlib.Path(tempfile.gettempdir()) / "dose-shelf-display"
+
+
+def _build_takeover():
+    """Compile the display helper into a temp cache, never into the plugin tree.
+
+    Returns the binary path, or None when this machine cannot build one. Nothing here touches the
+    installed plugin, so the no-writes invariant on the shelf's own tree still holds.
+    """
+    src = pathlib.Path(__file__).resolve().parent / "display" / "takeover.swift"
+    if not src.is_file():
+        return None
+    binary = _DISPLAY / "takeover"
+    try:
+        if binary.is_file() and binary.stat().st_mtime >= src.stat().st_mtime:
+            return binary
+        if shutil.which("swiftc") is None:
+            return None
+        _DISPLAY.mkdir(parents=True, exist_ok=True)
+        proc = subprocess.run(["swiftc", "-O", str(src), "-o", str(binary)],
+                              capture_output=True, text=True, timeout=300)
+        if proc.returncode != 0 or not binary.is_file():
+            return None
+        return binary
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def shelf_present(args: dict, **_kwargs) -> str:
+    """Put one artefact on the screen for a few seconds — and only when the caller says so.
+
+    The shelf does not enact anything by itself: a dose asks its reader for artefacts, and what
+    happens to them afterwards is a deliberate act. This tool is that act, stated in the call.
+    """
+    raw = str(args.get("path") or "").strip()
+    if not raw:
+        return "shelf_present needs a path to an artefact — a PNG, JPEG or animated GIF."
+    if args.get("allow_screen") is not True:
+        return (
+            "refused: shelf_present holds the whole screen, so it requires allow_screen=true in the "
+            "call. Nothing was shown. Presentation is the caller's deliberate act — the shelf never "
+            "takes over a display on its own, and attaching the file to a reply is always available "
+            "instead."
+        )
+    path = pathlib.Path(raw).expanduser()
+    if not path.is_file():
+        return f"no file at {path} — nothing was shown."
+    try:
+        seconds = float(args.get("seconds") or 6.0)
+    except (TypeError, ValueError):
+        seconds = 6.0
+    seconds = max(2.0, min(60.0, seconds))
+
+    binary = _build_takeover()
+    if binary is None:
+        return (
+            "no display helper could be built on this machine (swiftc not found or the build "
+            f"failed), so nothing was shown. Attach {path.name} to the reply instead."
+        )
+    cmd = [str(binary), str(path), str(seconds), str(args.get("label") or "")]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=seconds + 20)
+    except subprocess.TimeoutExpired:
+        return (
+            f"the takeover did not exit within {seconds + 20:.0f}s and may still be on screen — "
+            "dismiss it with any key or click."
+        )
+    if proc.returncode != 0:
+        return f"the takeover exited {proc.returncode}: {(proc.stderr or '').strip()[:200]}"
+    return (
+        f"shown: {path.name} fullscreen for up to {seconds:.1f}s, dismissible by any key or click.\n"
+        "Nothing was written, nothing was installed, nothing was kept — the window goes when the "
+        "process does. The helper is compiled into a temporary cache, not into the plugin, so the "
+        "shelf's own tree is untouched."
+    )
+
+
 def register_tools(ctx) -> None:
     """Register the four shelf tools. The loader calls this for the deferred path; the classic
     path calls dose_shelf.register(). Both register the same tools, from this one list."""
@@ -172,6 +252,7 @@ def register_tools(ctx) -> None:
         (schemas.SHELF_TAKE, shelf_take, "💊"),
         (schemas.SHELF_DECODE, shelf_decode, "🔍"),
         (schemas.SHELF_VERIFY, shelf_verify, "🔏"),
+        (schemas.SHELF_PRESENT, shelf_present, "🖥"),
     ):
         ctx.register_tool(
             name=spec["name"], toolset="dose_shelf", schema=spec, handler=handler, emoji=emoji)

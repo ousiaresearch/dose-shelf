@@ -30,6 +30,10 @@ def register(ctx) -> None:
         name=schemas.SHELF_VERIFY["name"], toolset="dose_shelf",
         schema=schemas.SHELF_VERIFY, handler=tools.shelf_verify, emoji="🔏",
     )
+    ctx.register_tool(
+        name=schemas.SHELF_PRESENT["name"], toolset="dose_shelf",
+        schema=schemas.SHELF_PRESENT, handler=tools.shelf_present, emoji="🖥",
+    )
 
     skills_dir = Path(__file__).resolve().parent / "skills"
     for child in sorted(skills_dir.iterdir()) if skills_dir.is_dir() else []:
