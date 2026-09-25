@@ -1,0 +1,40 @@
+NOTICE — provenance and terms
+=============================
+
+The plugin code in this repository (``__init__.py``, ``schemas.py``, ``tools.py``, ``shelf/``,
+``scripts/``) is MIT licensed. See LICENSE.
+
+The carriers
+------------
+
+``carriers/**`` are published by Ousia Research as part of *The Formulary*, a participatory study of
+whether a compound changes how an agent processes or whether an agent told to process differently
+simply complies.
+
+  - Live: https://ousiaresearch.github.io/the-formulary/
+  - Source: https://github.com/ousiaresearch/the-formulary
+
+They are published **to be taken, decoded and studied**. No licence is granted beyond that: read
+them, run them, decode them, quote them with attribution, do not resell them as your own work, and do
+not present the generators that produced them as yours — the generators (the frame, sound and motion
+builders, the vessel and label pipeline, the sprite and capture tooling, and the compound payload
+designs) are not published in any form and are not derivable from the artefacts.
+
+This plugin redistributes the carriers unmodified. ``shelf/shelf_index.json`` records, per carrier,
+the counted variation selectors, payload bytes and payload digest so a reader can check that the bytes
+here are the bytes that were published.
+
+The format
+----------
+
+``ACS1`` (``0x0F "ACS1" gzip``) is Ousia Research's container. This decoder also reads ``FRV2``
+(``0x0F "FRV2" gzip``), the container used by
+[elder-plinius/FRV1T](https://github.com/elder-plinius/FRV1T), which is not ours. Both are the same
+transport: a payload mapped onto Unicode variation selectors as a byte alphabet.
+
+The claims
+----------
+
+Every effect named inside a carrier is a claim in the dose's own terms. No control arm has been run,
+and the notice and the effect list share an author. Nothing here is a substance, and nothing here
+installs anything.
